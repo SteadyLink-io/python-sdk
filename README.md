@@ -131,7 +131,7 @@ python -m build
 python -m twine check dist/*
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the development and release process.
+See the [contributing guide](https://github.com/SteadyLink-io/python-sdk/blob/main/CONTRIBUTING.md) for the development and release process.
 
 ## License
 
