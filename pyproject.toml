@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "steadylink"
+version = "0.1.0"
+description = "Typed Python client for the SteadyLink API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "SteadyLink" }]
+keywords = ["steadylink", "cdn", "assets", "media", "sdk"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://steadylink.io"
+Documentation = "https://steadylink.io/docs/sdks"
+Repository = "https://github.com/SteadyLink-io/python-sdk"
+Issues = "https://github.com/SteadyLink-io/python-sdk/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["steadylink*"]
+
+[tool.setuptools.package-data]
+steadylink = ["py.typed"]
