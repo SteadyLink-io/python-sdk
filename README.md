@@ -1,8 +1,8 @@
 # SteadyLink Python SDK
 
 [![CI](https://github.com/SteadyLink-io/python-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/SteadyLink-io/python-sdk/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/steadylink.svg)](https://pypi.org/project/steadylink/)
-[![Python](https://img.shields.io/pypi/pyversions/steadylink.svg)](https://pypi.org/project/steadylink/)
+[![PyPI](https://img.shields.io/pypi/v/steadylink.svg?cacheSeconds=300)](https://pypi.org/project/steadylink/)
+[![Python](https://img.shields.io/pypi/pyversions/steadylink.svg?cacheSeconds=300)](https://pypi.org/project/steadylink/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The official Python client for the [SteadyLink API](https://steadylink.io/docs/developers/api-reference).
