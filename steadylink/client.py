@@ -5,7 +5,7 @@ import random
 import time
 from dataclasses import asdict, dataclass
 from email.message import Message
-from typing import Any, Callable, Literal, NotRequired, TypedDict
+from typing import Any, Callable, Literal, TypedDict
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
@@ -43,10 +43,13 @@ class UploadFile:
     path: str = ""
 
 
-class DeliveryPolicy(TypedDict):
+class _DeliveryPolicyRequired(TypedDict):
     mode: Literal["all", "allow", "deny"]
     countries: list[str]
-    storageRegion: NotRequired[str]
+
+
+class DeliveryPolicy(_DeliveryPolicyRequired, total=False):
+    storageRegion: str
 
 
 Transport = Callable[[str, str, dict[str, str], bytes | None], tuple[int, bytes] | tuple[int, bytes, Any]]
