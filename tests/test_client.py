@@ -50,8 +50,29 @@ def test_upload_file_completes_the_full_upload_flow():
 
     client = SteadyLink(api_key="secret", base_url="https://api.example", transport=transport, binary_transport=binary_transport)
     assert client.upload_file("bucket", "hero.png", b"abc", "image/png") == {"status": "committing"}
-    assert storage_calls == [("https://storage.example/upload", b"abc", "image/png")]
+    assert storage_calls == [("https://storage.example/upload", b"abc", "application/octet-stream")]
     assert json.loads(api_calls[0][3])["files"] == [{"filename": "hero.png", "size": 3, "contentType": "image/png", "path": ""}]
+
+
+def test_replace_file_sends_octet_stream_to_storage():
+    api_calls = []
+    storage_calls = []
+
+    def transport(method, url, headers, body):
+        api_calls.append((method, url))
+        if "/objects/upload-temp" in url:
+            return 200, b'{"uploadUrl":"https://storage.example/temp","tempKey":"tmp/1"}'
+        return 200, b'{"ok":true}'
+
+    def binary_transport(url, body, content_type):
+        storage_calls.append((url, body, content_type))
+        return 200, b""
+
+    client = SteadyLink(api_key="secret", base_url="https://api.example", transport=transport, binary_transport=binary_transport)
+    assert client.replace_file("bucket", "campaign/hero.webp", "hero.webp", b"abcd", "image/webp") == {"ok": True}
+    assert storage_calls == [("https://storage.example/temp", b"abcd", "application/octet-stream")]
+    assert "content_type=image%2Fwebp" in api_calls[0][1]
+    assert "upload_temp_key=tmp%2F1" in api_calls[1][1]
 
 
 def test_preserves_structured_errors_and_request_ids():
