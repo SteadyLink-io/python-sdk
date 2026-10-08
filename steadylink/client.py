@@ -35,6 +35,11 @@ class SteadyLinkNetworkError(RuntimeError):
     """The request could not reach SteadyLink or exceeded its timeout."""
 
 
+# SteadyLink signs presigned PUT URLs for this content type. The real type is
+# sent in the upload manifest and detected again when the upload completes.
+PRESIGNED_CONTENT_TYPE = "application/octet-stream"
+
+
 @dataclass(frozen=True)
 class UploadFile:
     filename: str
@@ -121,7 +126,7 @@ class SteadyLink:
         retry: bool = True,
     ) -> Any:
         method = method.upper()
-        headers = {"Accept": "application/json", "User-Agent": "steadylink-python/0.1.0"}
+        headers = {"Accept": "application/json", "User-Agent": "steadylink-python/0.1.1"}
         headers["X-API-Key" if self.api_key else "Authorization"] = self.api_key or f"Bearer {self.access_token}"
         if self.workspace_id:
             headers["X-Workspace-Id"] = self.workspace_id
@@ -159,8 +164,13 @@ class SteadyLink:
     def _sleep(attempt: int) -> None:
         time.sleep((0.25 * (2**attempt)) + random.uniform(0, 0.1))
 
-    def upload_to_url(self, upload_url: str, body: bytes, content_type: str = "application/octet-stream") -> None:
-        """Upload bytes to a presigned URL without sending SteadyLink credentials."""
+    def upload_to_url(self, upload_url: str, body: bytes, content_type: str = PRESIGNED_CONTENT_TYPE) -> None:
+        """Upload bytes to a presigned URL without sending SteadyLink credentials.
+
+        SteadyLink signs its upload URLs for ``application/octet-stream``.
+        Sending any other ``content_type`` makes storage reject the upload
+        with 403.
+        """
         try:
             result = self.binary_transport(upload_url, body, content_type)
         except (URLError, TimeoutError, OSError) as exc:
@@ -175,7 +185,7 @@ class SteadyLink:
         upload = batch["files"][0]
         if not upload.get("uploadUrl"):
             raise SteadyLinkError(500, "The API did not return a presigned upload URL")
-        self.upload_to_url(upload["uploadUrl"], body, content_type)
+        self.upload_to_url(upload["uploadUrl"], body)
         return self.complete_upload(upload["id"])
 
     def list_buckets(self, limit: int = 100) -> dict[str, Any]:
@@ -206,7 +216,7 @@ class SteadyLink:
     def replace_file(self, bucket_id: str, key: str, filename: str, body: bytes, content_type: str = "application/octet-stream") -> dict[str, Any]:
         """Upload a new revision while preserving the asset's delivery URL."""
         replacement = self.create_replacement_upload(bucket_id, len(body), content_type)
-        self.upload_to_url(replacement["uploadUrl"], body, content_type)
+        self.upload_to_url(replacement["uploadUrl"], body)
         return self.finish_replacement(bucket_id, key, replacement["tempKey"], filename)
 
     def create_migration(self, bucket_id: str, files: list[UploadFile]) -> dict[str, Any]:
